@@ -1,0 +1,84 @@
+.speech-bubble-container {
+  position: relative;
+  max-width: 280px;
+  min-height: 60px;
+  margin-bottom: 1rem;
+}
+
+.speech-bubble {
+  position: relative;
+  background: rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  animation: bubbleFadeIn 0.4s ease;
+}
+
+/* Tail pointing left toward genie */
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid rgba(0, 0, 0, 0.04);
+}
+
+.speech-bubble .cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--accent-gold);
+  margin-left: 2px;
+  animation: blink 0.8s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+.speech-bubble .cursor.hidden {
+  visibility: hidden;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@keyframes bubbleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .speech-bubble-container {
+    max-width: 260px;
+  }
+
+  .speech-bubble {
+    font-size: 0.85rem;
+    padding: 0.75rem 0.9rem;
+  }
+
+  /* On mobile, tail points up since genie is above */
+  .speech-bubble::before {
+    left: 50%;
+    top: -8px;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid rgba(0, 0, 0, 0.04);
+    border-top: none;
+  }
+}

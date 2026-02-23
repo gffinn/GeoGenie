@@ -1,0 +1,55 @@
+export const EXPRESSIONS = {
+  idle: {
+    leftEye: { scaleY: 1, translateY: 0 },
+    rightEye: { scaleY: 1, translateY: 0 },
+    leftBrow: { translateY: 0, rotate: 0 },
+    rightBrow: { translateY: 0, rotate: 0 },
+    mouth: 'smile',
+    leftArm: { rotate: 0 },
+    rightArm: { rotate: 0 },
+  },
+  thinking: {
+    leftEye: { scaleY: 0.6, translateY: -2 },
+    rightEye: { scaleY: 0.6, translateY: -2 },
+    leftBrow: { translateY: -3, rotate: -5 },
+    rightBrow: { translateY: -5, rotate: 10 },
+    mouth: 'hmm',
+    leftArm: { rotate: -15 },
+    rightArm: { rotate: 15 },
+  },
+  excited: {
+    leftEye: { scaleY: 1.3, translateY: 0 },
+    rightEye: { scaleY: 1.3, translateY: 0 },
+    leftBrow: { translateY: -6, rotate: -5 },
+    rightBrow: { translateY: -6, rotate: 5 },
+    mouth: 'grin',
+    leftArm: { rotate: -40 },
+    rightArm: { rotate: 40 },
+  },
+  pointing: {
+    leftEye: { scaleY: 1, translateY: 0 },
+    rightEye: { scaleY: 1.1, translateY: 0 },
+    leftBrow: { translateY: -2, rotate: 0 },
+    rightBrow: { translateY: -4, rotate: 5 },
+    mouth: 'smile',
+    leftArm: { rotate: 5 },
+    rightArm: { rotate: 50 },
+  },
+  concerned: {
+    leftEye: { scaleY: 0.8, translateY: 0 },
+    rightEye: { scaleY: 0.9, translateY: 0 },
+    leftBrow: { translateY: -2, rotate: 10 },
+    rightBrow: { translateY: -4, rotate: -8 },
+    mouth: 'frown',
+    leftArm: { rotate: -10 },
+    rightArm: { rotate: 10 },
+  },
+};
+
+export const DIALOGUES = {
+  idle: "I'm the GEO Genie! Paste a URL and I'll reveal how visible your content is to AI engines.",
+  pointing: "Drop a URL right there and let's see what we're working with!",
+  excited: "Ooh, let's see what we've got...",
+  thinking: "Give me a moment... analyzing the magic behind this page...",
+  concerned: "Hmm, this might need some work. Let me show you what I found.",
+};

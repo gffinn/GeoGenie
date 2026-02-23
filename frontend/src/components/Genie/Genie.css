@@ -1,0 +1,37 @@
+.genie-wrapper {
+  position: relative;
+  width: 280px;
+  height: 380px;
+  overflow: visible;
+  animation: genieFloat 3s ease-in-out infinite;
+}
+
+/* Floating animation */
+@keyframes genieFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0.5deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-0.5deg);
+  }
+}
+
+.genie-wrapper.thinking {
+  animation-duration: 4s;
+}
+
+.genie-wrapper.excited {
+  animation-duration: 2s;
+}
+
+.genie-wrapper.concerned {
+  animation-duration: 5s;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .genie-wrapper {
+    width: 180px;
+    height: 280px;
+  }
+}
