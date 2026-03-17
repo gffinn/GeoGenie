@@ -4,7 +4,10 @@ import Genie from './components/Genie/Genie';
 import SearchBar from './components/SearchBar/SearchBar';
 import SpeechBubble from './components/SpeechBubble/SpeechBubble';
 import Results from './components/Results/Results';
+import NavBar from './components/NavBar/NavBar';
 import Citations from './pages/Citations/Citations';
+import About from './pages/About/About';
+import HowItWorks from './pages/HowItWorks/HowItWorks';
 import { DIALOGUES } from './components/Genie/expressions';
 import './App.css';
 
@@ -165,10 +168,15 @@ function App() {
   );
 
   return (
-    <Routes>
-      <Route path="/" element={homePage} />
-      <Route path="/citations" element={<Citations />} />
-    </Routes>
+    <>
+      <NavBar />
+      <Routes>
+        <Route path="/" element={homePage} />
+        <Route path="/citations" element={<Citations />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+      </Routes>
+    </>
   );
 }
 
