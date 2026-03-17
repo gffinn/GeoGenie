@@ -5,6 +5,7 @@
   justify-content: center;
   min-height: 100vh;
   padding: 2rem;
+  padding-top: calc(56px + 2rem);
   padding-bottom: 15vh;
   position: relative;
   overflow: visible;

@@ -1,0 +1,75 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.navbar-brand {
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 0.1em;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.navbar-geo {
+  font-weight: 800;
+  color: var(--accent-blue);
+  letter-spacing: 0.04em;
+}
+
+.navbar-genie {
+  font-weight: 300;
+  font-style: italic;
+  color: var(--accent-gold);
+}
+
+.navbar-links {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav-link {
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.nav-link.active {
+  color: var(--accent-blue);
+  background: rgba(37, 99, 235, 0.07);
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0 1rem;
+  }
+
+  .nav-link {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.8rem;
+  }
+}
