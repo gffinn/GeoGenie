@@ -87,6 +87,23 @@
   margin-bottom: 2rem;
 }
 
+.score-group {
+  margin-bottom: 1.25rem;
+}
+
+.score-group-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
 .results-score-grid {
   display: flex;
   flex-direction: column;

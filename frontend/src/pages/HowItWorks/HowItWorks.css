@@ -80,7 +80,87 @@
 
 /* Signals grid */
 .hiw-signals {
+  margin-bottom: 3rem;
+}
+
+.hiw-grades {
   margin-bottom: 3.5rem;
+}
+
+/* Signal category groups */
+.signals-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.signal-group-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.signal-group-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.signal-group-note {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Grading scale */
+.grade-scale {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.grade-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 0.9rem;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+}
+
+.grade-letter {
+  font-size: 1.1rem;
+  font-weight: 800;
+  min-width: 1.2rem;
+  line-height: 1;
+}
+
+.grade-range {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 5rem;
+}
+
+.grade-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.grade-note {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding: 0.75rem 1rem;
+  background: rgba(220, 38, 38, 0.04);
+  border: 1px solid rgba(220, 38, 38, 0.1);
+  border-radius: 8px;
 }
 
 .signals-heading {

@@ -15,17 +15,25 @@ class AnalysisResult(Base):
     domain: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
     total_score: Mapped[float] = mapped_column(Float, nullable=False)
 
+    # GEO content signals
     statistic_score: Mapped[float] = mapped_column(Float, default=0.0)
     citation_score: Mapped[float] = mapped_column(Float, default=0.0)
     quotation_score: Mapped[float] = mapped_column(Float, default=0.0)
+    freshness_score: Mapped[float] = mapped_column(Float, default=0.0)
+    # Technical infrastructure
+    https_score: Mapped[float] = mapped_column(Float, default=0.0)
+    meta_tags_score: Mapped[float] = mapped_column(Float, default=0.0)
+    mobile_score: Mapped[float] = mapped_column(Float, default=0.0)
+    # Content & structure
     structure_score: Mapped[float] = mapped_column(Float, default=0.0)
     schema_score: Mapped[float] = mapped_column(Float, default=0.0)
-    freshness_score: Mapped[float] = mapped_column(Float, default=0.0)
     faq_score: Mapped[float] = mapped_column(Float, default=0.0)
     readability_score: Mapped[float] = mapped_column(Float, default=0.0)
-    robots_score: Mapped[float] = mapped_column(Float, default=0.0)
     tone_score: Mapped[float] = mapped_column(Float, default=0.0)
+    # AI access
     crawlability_score: Mapped[float] = mapped_column(Float, default=0.0)
+    robots_score: Mapped[float] = mapped_column(Float, default=0.0)
+    llms_txt_score: Mapped[float] = mapped_column(Float, default=0.0)
 
     raw_metrics: Mapped[str] = mapped_column(Text, default="{}")
     recommendations: Mapped[str] = mapped_column(Text, default="[]")

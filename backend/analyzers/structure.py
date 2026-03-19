@@ -4,6 +4,17 @@ from .base import BaseAnalyzer
 
 HEADING_TAGS = ["h1", "h2", "h3", "h4", "h5", "h6"]
 
+# Points per semantic element — total possible: 43, capped at 40
+SEMANTIC_WEIGHTS: dict[str, int] = {
+    "main": 10,
+    "header": 8,
+    "nav": 7,
+    "article": 8,
+    "section": 5,
+    "footer": 3,
+    "aside": 2,
+}
+
 
 class StructureAnalyzer(BaseAnalyzer):
     name = "structure"
@@ -12,6 +23,7 @@ class StructureAnalyzer(BaseAnalyzer):
     def analyze(self, html: str, url: str) -> dict:
         soup = BeautifulSoup(html, "lxml")
 
+        # ── Heading hierarchy (60 pts max) ─────────────────────────────────
         headings = []
         for tag in soup.find_all(HEADING_TAGS):
             level = int(tag.name[1])
@@ -23,55 +35,48 @@ class StructureAnalyzer(BaseAnalyzer):
         h3_count = sum(1 for h in headings if h["level"] == 3)
 
         nesting_errors = 0
-        if headings:
-            for i in range(1, len(headings)):
-                prev_level = headings[i - 1]["level"]
-                curr_level = headings[i]["level"]
-                # Skipping levels (e.g., H1 -> H3 without H2)
-                if curr_level > prev_level + 1:
-                    nesting_errors += 1
+        for i in range(1, len(headings)):
+            if headings[i]["level"] > headings[i - 1]["level"] + 1:
+                nesting_errors += 1
 
-        # Scoring
-        score = 100.0
+        heading_score = 60.0
 
-        # No headings at all
         if heading_count == 0:
-            return {
-                "score": 0,
-                "heading_count": 0,
-                "h1_count": 0,
-                "h2_count": 0,
-                "h3_count": 0,
-                "nesting_errors": 0,
-            }
+            heading_score = 0.0
+        else:
+            if h1_count == 0:
+                heading_score -= 20.0
+            if h1_count > 1:
+                heading_score -= 15.0
+            if h2_count == 0:
+                heading_score -= 15.0
+            heading_score -= nesting_errors * 7.0
+            if h3_count > 0 and h2_count > 0:
+                heading_score = min(60.0, heading_score + 7.0)
 
-        # Penalize missing H1
-        if h1_count == 0:
-            score -= 30
+        heading_score = max(0.0, heading_score)
 
-        # Penalize multiple H1s
-        if h1_count > 1:
-            score -= 20
+        # ── Semantic HTML elements (40 pts max) ────────────────────────────
+        semantic_found: dict[str, bool] = {
+            el: bool(soup.find(el)) for el in SEMANTIC_WEIGHTS
+        }
 
-        # Penalize no H2s (flat structure)
-        if h2_count == 0:
-            score -= 20
+        semantic_score = min(
+            40.0,
+            sum(pts for el, pts in SEMANTIC_WEIGHTS.items() if semantic_found[el]),
+        )
 
-        # Penalize nesting errors
-        score -= nesting_errors * 10
-
-        # Bonus for having H3s (deeper structure)
-        if h3_count > 0 and h2_count > 0:
-            score = min(100.0, score + 10)
-
-        score = max(0.0, min(100.0, score))
+        total_score = max(0.0, min(100.0, heading_score + semantic_score))
 
         return {
-            "score": round(score, 1),
+            "score": round(total_score, 1),
+            "heading_score": round(heading_score, 1),
+            "semantic_score": round(semantic_score, 1),
             "heading_count": heading_count,
             "h1_count": h1_count,
             "h2_count": h2_count,
             "h3_count": h3_count,
             "nesting_errors": nesting_errors,
-            "headings": headings[:20],  # Cap for storage
+            "headings": headings[:20],
+            "semantic_elements_found": semantic_found,
         }

@@ -1,17 +1,41 @@
 import './Results.css';
 
+// Grouped score display — order and category labels preserved from config.py
+const SCORE_GROUPS = [
+  {
+    category: 'GEO Content Signals',
+    keys: ['statistic_score', 'quotation_score', 'citation_score', 'freshness_score'],
+  },
+  {
+    category: 'Technical Infrastructure',
+    keys: ['https_score', 'meta_tags_score', 'mobile_score'],
+  },
+  {
+    category: 'Content & Structure',
+    keys: ['structure_score', 'schema_score', 'faq_score', 'tone_score', 'readability_score'],
+  },
+  {
+    category: 'AI Access',
+    keys: ['crawlability_score', 'robots_score', 'llms_txt_score'],
+  },
+];
+
 const SCORE_LABELS = {
-  statistic_score: 'Statistics & Data',
-  citation_score: 'Citations',
-  structure_score: 'Content Structure',
-  quotation_score: 'Quotations',
-  schema_score: 'Schema Markup',
-  freshness_score: 'Content Freshness',
-  faq_score: 'FAQ Coverage',
+  statistic_score:   'Statistics & Data',
+  quotation_score:   'Quotations',
+  citation_score:    'Citations',
+  freshness_score:   'Content Freshness',
+  https_score:       'HTTPS',
+  meta_tags_score:   'Title & Meta Tags',
+  mobile_score:      'Mobile Responsive',
+  structure_score:   'Content Structure',
+  schema_score:      'Schema Markup',
+  faq_score:         'FAQ Coverage',
+  tone_score:        'Authoritative Tone',
   readability_score: 'Readability',
-  tone_score: 'Authoritative Tone',
-  robots_score: 'Robots / Meta',
   crawlability_score: 'Crawlability',
+  robots_score:      'AI Crawlers',
+  llms_txt_score:    'llms.txt',
 };
 
 const REC_EXAMPLES = {
@@ -59,6 +83,22 @@ const REC_EXAMPLES = {
     before: '"The implementation of the aforementioned methodology facilitates optimization."',
     after: '"This method makes your content easier for AI to find and cite."',
   },
+  https: {
+    before: 'http://example.com — served over plain HTTP.',
+    after: 'https://example.com — TLS certificate via Let\'s Encrypt, all HTTP redirected to HTTPS.',
+  },
+  meta_tags: {
+    before: 'No <title> or <meta name="description"> on the page.',
+    after: '<title>GEO Guide 2025</title> · <meta name="description" content="Learn how to optimize your content for AI visibility in 2025.">',
+  },
+  mobile: {
+    before: 'No viewport meta tag — page renders at desktop width on mobile.',
+    after: '<meta name="viewport" content="width=device-width, initial-scale=1"> added to <head>.',
+  },
+  llms_txt: {
+    before: 'No /llms.txt file at the domain root.',
+    after: 'https://example.com/llms.txt created with site description, key pages, and usage preferences.',
+  },
 };
 
 function parseRec(message) {
@@ -102,30 +142,33 @@ export default function Results({ data, onReset }) {
         </div>
       </div>
 
-      {/* Individual scores */}
+      {/* Individual scores grouped by category */}
       <div className="results-scores">
         <h3 className="results-section-title">Score Breakdown</h3>
-        <div className="results-score-grid">
-          {scores && Object.entries(scores)
-            .filter(([key]) => SCORE_LABELS[key])
-            .map(([key, value]) => (
-            <div key={key} className="score-bar-item">
-              <div className="score-bar-header">
-                <span className="score-bar-label">{SCORE_LABELS[key] || key}</span>
-                <span className="score-bar-value" style={{ color: scoreColor(value) }}>{Math.round(value)}</span>
-              </div>
-              <div className="score-bar-track">
-                <div
-                  className="score-bar-fill"
-                  style={{
-                    width: `${value}%`,
-                    backgroundColor: scoreColor(value),
-                  }}
-                />
-              </div>
+        {scores && SCORE_GROUPS.map((group) => (
+          <div key={group.category} className="score-group">
+            <span className="score-group-label">{group.category}</span>
+            <div className="results-score-grid">
+              {group.keys.map((key) => {
+                const value = scores[key] ?? 0;
+                return (
+                  <div key={key} className="score-bar-item">
+                    <div className="score-bar-header">
+                      <span className="score-bar-label">{SCORE_LABELS[key]}</span>
+                      <span className="score-bar-value" style={{ color: scoreColor(value) }}>{Math.round(value)}</span>
+                    </div>
+                    <div className="score-bar-track">
+                      <div
+                        className="score-bar-fill"
+                        style={{ width: `${value}%`, backgroundColor: scoreColor(value) }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
       {recommendations && recommendations.length > 0 && (

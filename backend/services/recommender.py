@@ -131,6 +131,51 @@ RECOMMENDATION_TEMPLATES: dict[str, dict] = {
         ),
         "impact": "low",
     },
+    "https_score": {
+        "category": "https",
+        "message": (
+            "Your page is served over HTTP, not HTTPS. Switch to HTTPS immediately — "
+            "it is required for trust, search ranking, and AI crawler access. Most "
+            "major AI crawlers prefer or require secure connections. This is a "
+            "critical failure that caps your grade at D regardless of other scores. "
+            "Obtain a free TLS certificate via Let's Encrypt or your hosting provider."
+        ),
+        "impact": "high",
+    },
+    "meta_tags_score": {
+        "category": "meta_tags",
+        "message": (
+            "Add a <title> tag and/or <meta name='description'> to your page. "
+            "These are foundational discoverability signals: AI indexers and search "
+            "crawlers use the title and description to categorize content before "
+            "parsing the body. Missing either tag significantly reduces how well "
+            "your page is understood and surfaced in AI-generated answers."
+        ),
+        "impact": "high",
+    },
+    "mobile_score": {
+        "category": "mobile",
+        "message": (
+            "Add a viewport meta tag for mobile responsiveness: "
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>. "
+            "Many AI crawlers simulate mobile viewports, and sites without a proper "
+            "viewport declaration may be incorrectly rendered or scored lower by "
+            "technical auditors. This is a standard requirement for all modern pages."
+        ),
+        "impact": "medium",
+    },
+    "llms_txt_score": {
+        "category": "llms_txt",
+        "message": (
+            "Create an /llms.txt file at your domain root. This emerging standard "
+            "(similar to robots.txt but for LLM assistants) tells AI systems how "
+            "to summarize and use your content. Place a plain-text file at "
+            "https://yourdomain.com/llms.txt with a brief description of your site, "
+            "key pages, and any usage preferences. Early adoption signals forward-"
+            "looking AI accessibility. See llmstxt.org for the specification."
+        ),
+        "impact": "low",
+    },
 }
 
 # Sort by weight descending for priority assignment

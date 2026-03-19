@@ -15,17 +15,25 @@ class Recommendation(BaseModel):
 
 
 class ScoreBreakdown(BaseModel):
+    # GEO content signals
     statistic_score: float
     citation_score: float
     quotation_score: float
+    freshness_score: float
+    # Technical infrastructure
+    https_score: float
+    meta_tags_score: float
+    mobile_score: float
+    # Content & structure
     structure_score: float
     schema_score: float
-    freshness_score: float
     faq_score: float
-    readability_score: float
     tone_score: float
-    robots_score: float
+    readability_score: float
+    # AI access
     crawlability_score: float
+    robots_score: float
+    llms_txt_score: float
 
 
 class AnalyzeResponse(BaseModel):
