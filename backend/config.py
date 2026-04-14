@@ -23,6 +23,11 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
 
+    # Site crawl settings
+    MAX_CRAWL_PAGES: int = 20
+    MAX_CRAWL_DEPTH: int = 2       # 0 = seed page, 1 = linked from seed
+    CRAWL_DELAY_SECONDS: float = 1.0  # politeness delay between fetches
+
     # Scoring weights — GEO research signals (Aggarwal et al. KDD 2024,
     # SE Ranking 2025, Search Engine Land 2025) plus technical infrastructure
     # rubric (v2). Total = 1.0.

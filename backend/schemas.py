@@ -56,6 +56,38 @@ class Citation(BaseModel):
     note: str
 
 
+class CrawlRequest(BaseModel):
+    url: HttpUrl
+
+
+class CrawlStartResponse(BaseModel):
+    crawl_id: int
+    status: str
+
+
+class CrawlPageStatus(BaseModel):
+    url: str
+    status: str
+    depth: int
+    total_score: float | None = None
+    grade: str | None = None
+    scores: ScoreBreakdown | None = None
+    error: str | None = None
+
+
+class CrawlStatusResponse(BaseModel):
+    crawl_id: int
+    url: str
+    status: str
+    pages_found: int
+    pages_analyzed: int
+    total_score: float | None = None
+    grade: str | None = None
+    pages: list[CrawlPageStatus]
+    created_at: datetime
+    completed_at: datetime | None = None
+
+
 class HealthResponse(BaseModel):
     status: str
     version: str

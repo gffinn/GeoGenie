@@ -1,29 +1,30 @@
-import json
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta, timezone
 from urllib.parse import urlparse
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from .analyzers import ALL_ANALYZERS
 from .config import settings
 from .database import get_db, init_db
-from .models import AnalysisResult
+from .models import AnalysisResult, SiteCrawl, SiteCrawlPage
 from .schemas import (
     AnalyzeRequest,
     AnalyzeResponse,
     Citation,
+    CrawlPageStatus,
+    CrawlRequest,
+    CrawlStartResponse,
+    CrawlStatusResponse,
     HealthResponse,
     Recommendation,
     ScoreBreakdown,
 )
-from .services.recommender import generate_recommendations
-from .services.scorer import calculate_total_score, score_to_grade
+from .services.analysis import get_cached_result, run_analysis
+from .services.crawler import run_site_crawl
+from .services.scorer import score_to_grade
 from .services.scraper import FetchError, fetch_page
 
 logging.basicConfig(level=logging.INFO)
@@ -51,19 +52,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-def _get_cached_result(
-    db: Session, url: str
-) -> AnalysisResult | None:
-    """Return a cached result if it exists and is less than CACHE_TTL_HOURS old."""
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=settings.CACHE_TTL_HOURS)
-    return (
-        db.query(AnalysisResult)
-        .filter(AnalysisResult.url == url, AnalysisResult.created_at >= cutoff)
-        .order_by(AnalysisResult.created_at.desc())
-        .first()
-    )
 
 
 def _result_to_response(result: AnalysisResult, cached: bool) -> AnalyzeResponse:
@@ -104,66 +92,12 @@ def _result_to_response(result: AnalysisResult, cached: bool) -> AnalyzeResponse
     )
 
 
-def _run_analysis(url: str, html: str, fetch_time_ms: int, db: Session) -> AnalysisResult:
-    """Run all analyzers and persist results."""
-    domain = urlparse(url).netloc
-    scores: dict[str, float] = {}
-    raw_metrics: dict[str, dict] = {}
-
-    for analyzer_cls in ALL_ANALYZERS:
-        analyzer = analyzer_cls()
-        try:
-            result = analyzer.analyze(html, url)
-            scores[analyzer.score_field] = result.get("score", 0.0)
-            raw_metrics[analyzer.name] = result
-        except Exception:
-            logger.exception("Analyzer %s failed for %s", analyzer.name, url)
-            scores[analyzer.score_field] = 0.0
-            raw_metrics[analyzer.name] = {"score": 0, "error": "analyzer failed"}
-
-    total_score = calculate_total_score(scores)
-    recommendations = generate_recommendations(scores)
-
-    record = AnalysisResult(
-        url=url,
-        domain=domain,
-        total_score=total_score,
-        statistic_score=scores.get("statistic_score", 0),
-        citation_score=scores.get("citation_score", 0),
-        quotation_score=scores.get("quotation_score", 0),
-        freshness_score=scores.get("freshness_score", 0),
-        https_score=scores.get("https_score", 0),
-        meta_tags_score=scores.get("meta_tags_score", 0),
-        mobile_score=scores.get("mobile_score", 0),
-        structure_score=scores.get("structure_score", 0),
-        schema_score=scores.get("schema_score", 0),
-        faq_score=scores.get("faq_score", 0),
-        readability_score=scores.get("readability_score", 0),
-        tone_score=scores.get("tone_score", 0),
-        crawlability_score=scores.get("crawlability_score", 0),
-        robots_score=scores.get("robots_score", 0),
-        llms_txt_score=scores.get("llms_txt_score", 0),
-        raw_metrics=json.dumps(raw_metrics),
-        recommendations=json.dumps([r.model_dump() for r in recommendations]),
-        fetch_time_ms=fetch_time_ms,
-    )
-    try:
-        db.add(record)
-        db.commit()
-        db.refresh(record)
-    except SQLAlchemyError:
-        db.rollback()
-        logger.exception("Failed to save analysis for %s", url)
-        raise HTTPException(status_code=500, detail="Failed to save analysis results")
-    return record
-
-
 @app.post("/analyze", response_model=AnalyzeResponse)
 def analyze_url(request: AnalyzeRequest, db: Session = Depends(get_db)):
     url = str(request.url)
 
     # Check cache
-    cached = _get_cached_result(db, url)
+    cached = get_cached_result(db, url)
     if cached:
         logger.info("Cache hit for %s", url)
         return _result_to_response(cached, cached=True)
@@ -178,7 +112,7 @@ def analyze_url(request: AnalyzeRequest, db: Session = Depends(get_db)):
         )
 
     logger.info("Analyzing %s (%d ms fetch)", url, fetch_time_ms)
-    result = _run_analysis(url, html, fetch_time_ms, db)
+    result = run_analysis(url, html, fetch_time_ms, db)
     return _result_to_response(result, cached=False)
 
 
@@ -187,7 +121,7 @@ def get_analysis(url_encoded: str, db: Session = Depends(get_db)):
     url = url_encoded if url_encoded.startswith("http") else f"https://{url_encoded}"
 
     # Check cache
-    cached = _get_cached_result(db, url)
+    cached = get_cached_result(db, url)
     if cached:
         return _result_to_response(cached, cached=True)
 
@@ -200,8 +134,90 @@ def get_analysis(url_encoded: str, db: Session = Depends(get_db)):
             detail=f"Could not fetch URL: {e.message}",
         )
 
-    result = _run_analysis(url, html, fetch_time_ms, db)
+    result = run_analysis(url, html, fetch_time_ms, db)
     return _result_to_response(result, cached=False)
+
+
+@app.post("/crawl", response_model=CrawlStartResponse)
+def start_crawl(
+    request: CrawlRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    url = str(request.url)
+    domain = urlparse(url).netloc
+
+    crawl = SiteCrawl(url=url, domain=domain, status="pending")
+    db.add(crawl)
+    db.commit()
+    db.refresh(crawl)
+
+    background_tasks.add_task(run_site_crawl, crawl.id)
+    logger.info("Started crawl %d for %s", crawl.id, url)
+
+    return CrawlStartResponse(crawl_id=crawl.id, status=crawl.status)
+
+
+@app.get("/crawl/{crawl_id}", response_model=CrawlStatusResponse)
+def get_crawl_status(crawl_id: int, db: Session = Depends(get_db)):
+    crawl = db.query(SiteCrawl).filter(SiteCrawl.id == crawl_id).first()
+    if not crawl:
+        raise HTTPException(status_code=404, detail="Crawl not found")
+
+    pages = (
+        db.query(SiteCrawlPage)
+        .filter(SiteCrawlPage.crawl_id == crawl_id)
+        .order_by(SiteCrawlPage.depth, SiteCrawlPage.id)
+        .all()
+    )
+
+    page_statuses = []
+    for page in pages:
+        page_data = CrawlPageStatus(
+            url=page.url,
+            status=page.status,
+            depth=page.depth,
+            error=page.error,
+        )
+        if page.result:
+            page_data.total_score = page.result.total_score
+            critical = {
+                "crawlability_score": page.result.crawlability_score,
+                "robots_score": page.result.robots_score,
+                "https_score": page.result.https_score,
+            }
+            page_data.grade = score_to_grade(page.result.total_score, critical)
+            page_data.scores = ScoreBreakdown(
+                statistic_score=page.result.statistic_score,
+                citation_score=page.result.citation_score,
+                quotation_score=page.result.quotation_score,
+                freshness_score=page.result.freshness_score,
+                https_score=page.result.https_score,
+                meta_tags_score=page.result.meta_tags_score,
+                mobile_score=page.result.mobile_score,
+                structure_score=page.result.structure_score,
+                schema_score=page.result.schema_score,
+                faq_score=page.result.faq_score,
+                tone_score=page.result.tone_score,
+                readability_score=page.result.readability_score,
+                crawlability_score=page.result.crawlability_score,
+                robots_score=page.result.robots_score,
+                llms_txt_score=page.result.llms_txt_score,
+            )
+        page_statuses.append(page_data)
+
+    return CrawlStatusResponse(
+        crawl_id=crawl.id,
+        url=crawl.url,
+        status=crawl.status,
+        pages_found=crawl.pages_found,
+        pages_analyzed=crawl.pages_analyzed,
+        total_score=crawl.total_score,
+        grade=crawl.grade,
+        pages=page_statuses,
+        created_at=crawl.created_at,
+        completed_at=crawl.completed_at,
+    )
 
 
 CITATIONS = [

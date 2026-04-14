@@ -6,7 +6,7 @@ const STEPS = [
     number: '01',
     title: 'Submit a URL',
     description:
-      'Paste any publicly accessible web page URL into the analyzer. GEOGenie fetches the live page using a headless browser, so JavaScript-rendered content is captured accurately.',
+      'Paste any publicly accessible web page URL into the analyzer. GEO Genie fetches the live page using a headless browser, so JavaScript-rendered content is captured accurately.',
   },
   {
     number: '02',
@@ -24,13 +24,13 @@ const STEPS = [
     number: '04',
     title: 'Critical Failure Checks',
     description:
-      'Before assigning a grade, GEOGenie checks for critical failures: a page that won\'t load or blocks all AI crawlers is an automatic F. A page served over HTTP is capped at D regardless of its content score.',
+      'Before assigning a grade, GEO Genie checks for critical failures: a page that won\'t load or blocks all AI crawlers is an automatic F. A page served over HTTP is capped at D regardless of its content score.',
   },
   {
     number: '05',
     title: 'Actionable Recommendations',
     description:
-      'GEOGenie surfaces prioritized improvements ranked by impact — high, medium, or low — so you know exactly what to fix first.',
+      'GEO Genie surfaces prioritized improvements ranked by impact — high, medium, or low — so you know exactly what to fix first.',
   },
 ];
 
@@ -93,7 +93,7 @@ export default function HowItWorks() {
         <header className="hiw-header">
           <h1 className="hiw-title">How It Works</h1>
           <p className="hiw-subtitle">
-            GEOGenie scores your content against the signals that AI language models
+            GEO Genie scores your content against the signals that AI language models
             actually use when deciding which sources to cite in their answers.
           </p>
         </header>
