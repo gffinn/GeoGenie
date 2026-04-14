@@ -33,14 +33,14 @@ export default function Citations() {
             <line x1="19" y1="12" x2="5" y2="12" />
             <polyline points="12 19 5 12 12 5" />
           </svg>
-          Back to GEOGenie
+          Back to GEO Genie
         </Link>
       </nav>
 
       <header className="citations-header">
         <h1 className="citations-title">Citations & References</h1>
         <p className="citations-subtitle">
-          The academic publications and resources that inform GEOGenie's scoring methodology.
+          The academic publications and resources that inform GEO Genie's scoring methodology.
         </p>
       </header>
 

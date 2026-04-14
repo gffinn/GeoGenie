@@ -1,0 +1,110 @@
+.crawl-progress {
+  width: 100%;
+  max-width: 600px;
+  animation: resultsSlideIn 0.4s ease;
+}
+
+.crawl-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.75rem;
+}
+
+.crawl-progress-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.crawl-progress-count {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.crawl-bar-track {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.crawl-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--accent-blue);
+  transition: width 0.5s ease;
+}
+
+.crawl-page-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.crawl-page-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 0.8rem;
+}
+
+.crawl-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.crawl-status-pending {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.crawl-status-analyzing {
+  background: var(--accent-blue);
+  animation: pulse 1s ease infinite;
+}
+
+.crawl-status-completed {
+  background: #16a34a;
+}
+
+.crawl-status-failed {
+  background: #dc2626;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.crawl-page-url {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.crawl-page-score {
+  font-weight: 600;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.crawl-page-failed {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #dc2626;
+  flex-shrink: 0;
+}
